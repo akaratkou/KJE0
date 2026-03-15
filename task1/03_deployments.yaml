@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-deployment
+  namespace: k8s-program
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: resource-pod
+  template:
+    metadata:
+      labels:
+        app: resource-pod
+    spec:
+      containers:
+        - name: resource-service
+          image: resource-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: song-deployment
+  namespace: k8s-program
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: song-pod
+  template:
+    metadata:
+      labels:
+        app: song-pod
+    spec:
+      containers:
+        - name: song-service
+          image: song-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
