@@ -1,0 +1,84 @@
+# resource-service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-deployment
+  namespace: k8s-program
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: resource-pod
+  template:
+    metadata:
+      labels:
+        app: resource-pod
+    spec:
+      containers:
+        - name: resource-service
+          image: resource-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: RESOURCES_DB_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+---
+# song-service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: song-deployment
+  namespace: k8s-program
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: song-pod
+  template:
+    metadata:
+      labels:
+        app: song-pod
+    spec:
+      containers:
+        - name: song-service
+          image: song-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: song-storage
+              mountPath: /app/data
+      volumes:
+        - name: song-storage
+          persistentVolumeClaim:
+            claimName: song-pvc

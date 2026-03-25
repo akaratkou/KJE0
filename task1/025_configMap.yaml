@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  namespace: k8s-program
+data:
+  RESOURCES_DB_URL: jdbc:postgresql://resources-db-0.resources-db.k8s-program.svc.cluster.local:5432/postgres
+  SONGS_DB_URL: jdbc:postgresql://songs-db-0.songs-db.k8s-program.svc.cluster.local:5432/postgres
