@@ -41,3 +41,17 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT
+              value: "-1"
+            - name: SPRING_JPA_PROPERTIES_HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS
+              value: "false"
+            - name: SPRING_DATASOURCE_CONTINUE_ON_ERROR
+              value: "true"
+          volumeMounts:
+            - name: song-storage
+              mountPath: /app/data
+      volumes:
+        - name: song-storage
+          persistentVolumeClaim:
+            claimName: song-pvc
