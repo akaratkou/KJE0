@@ -21,11 +21,21 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_DATASOURCE_URL
+            - name: RESOURCES_DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: db-config
-                  key: RESOURCES_DB_URL
+                  key: RESOURCES_DB_HOST
+            - name: RESOURCES_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: RESOURCES_DB_PORT
+            - name: RESOURCES_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: RESOURCES_DB_NAME
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -60,11 +70,21 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_DATASOURCE_URL
+            - name: SONGS_DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: db-config
-                  key: SONGS_DB_URL
+                  key: SONGS_DB_HOST
+            - name: SONGS_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_PORT
+            - name: SONGS_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_NAME
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:

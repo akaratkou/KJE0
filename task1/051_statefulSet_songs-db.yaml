@@ -20,6 +20,12 @@ spec:
           ports:
             - containerPort: 5432
               name: postgres
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_NAME
           envFrom:
             - secretRef:
                 name: postgres-secret
@@ -27,6 +33,9 @@ spec:
             - name: songs-db-storage
               mountPath: /var/lib/postgresql/data
               subPath: postgres
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: songs-init.sql
           resources:
             requests:
               memory: "256Mi"
@@ -50,6 +59,10 @@ spec:
                 - postgres
             initialDelaySeconds: 5
             periodSeconds: 5
+      volumes:
+         - name: init-script
+           configMap:
+             name: db-init-scripts
   volumeClaimTemplates:
     - metadata:
         name: songs-db-storage

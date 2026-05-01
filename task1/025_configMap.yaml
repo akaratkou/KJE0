@@ -4,5 +4,19 @@ metadata:
   name: db-config
   namespace: k8s-program
 data:
-  RESOURCES_DB_URL: jdbc:postgresql://resources-db-0.resources-db.k8s-program.svc.cluster.local:5432/postgres
-  SONGS_DB_URL: jdbc:postgresql://songs-db-0.songs-db.k8s-program.svc.cluster.local:5432/postgres
+  # Resources DB
+  RESOURCES_DB_HOST: resources-db
+  RESOURCES_DB_PORT: "5432"
+  RESOURCES_DB_NAME: resourcesdb
+  RESOURCES_DB_DRIVER: org.postgresql.Driver
+
+  # Songs DB
+  SONGS_DB_HOST: songs-db
+  SONGS_DB_PORT: "5432"
+  SONGS_DB_NAME: songsdb
+  SONGS_DB_DRIVER: org.postgresql.Driver
+
+  # Connection Pool Settings
+  DB_POOL_MAX_SIZE: "10"
+  DB_POOL_MIN_IDLE: "2"
+  DB_CONNECTION_TIMEOUT: "30000"

@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-init-scripts
+  namespace: k8s-program
+data:
+  resources-init.sql: |
+    -- Создание sequence для resources
+    CREATE SEQUENCE IF NOT EXISTS public.resources_id_seq
+        INCREMENT BY 1
+        MINVALUE 1
+        MAXVALUE 2147483647
+        START 1
+        CACHE 1
+        NO CYCLE;
+    
+    -- Создание таблицы resources
+    CREATE TABLE IF NOT EXISTS public.resources (
+        id int4 NOT NULL DEFAULT nextval('resources_id_seq'),
+        blob bytea NULL,
+        CONSTRAINT resources_pkey PRIMARY KEY (id)
+        );
+
+  songs-init.sql: |
+    -- Создание sequence для songs
+    CREATE SEQUENCE IF NOT EXISTS public.songs_seq
+        INCREMENT BY 50
+        MINVALUE 1
+        MAXVALUE 9223372036854775807
+        START 1
+        CACHE 1
+        NO CYCLE;
+    
+    -- Создание таблицы songs
+    CREATE TABLE IF NOT EXISTS public.songs (
+        id int4 NOT NULL DEFAULT nextval('songs_seq'),
+        resource_id int4 NOT NULL,
+        album varchar(255) NULL,
+        artist varchar(255) NULL,
+        length varchar(255) NULL,
+        name varchar(255) NULL,
+        year varchar(255) NULL,
+        CONSTRAINT songs_pkey PRIMARY KEY (id),
+        CONSTRAINT songs_resource_id_key UNIQUE (resource_id)
+        );
