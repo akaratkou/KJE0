@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: resource-service
-          image: resource-service:latest
+          image: resource-service:1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -89,7 +89,7 @@ spec:
     spec:
       containers:
         - name: song-service
-          image: song-service:latest
+          image: song-service:1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

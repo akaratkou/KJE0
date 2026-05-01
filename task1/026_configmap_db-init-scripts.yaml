@@ -30,7 +30,7 @@ data:
         START 1
         CACHE 1
         NO CYCLE;
-    
+  
     -- Создание таблицы songs
     CREATE TABLE IF NOT EXISTS public.songs (
         id int4 NOT NULL DEFAULT nextval('songs_seq'),
@@ -40,6 +40,7 @@ data:
         length varchar(255) NULL,
         name varchar(255) NULL,
         year varchar(255) NULL,
+        genre varchar(255) NULL,
         CONSTRAINT songs_pkey PRIMARY KEY (id),
         CONSTRAINT songs_resource_id_key UNIQUE (resource_id)
         );
