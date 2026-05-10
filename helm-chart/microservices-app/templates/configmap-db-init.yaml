@@ -3,6 +3,9 @@ kind: ConfigMap
 metadata:
   name: db-init-scripts
   namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "microservices-app.customLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database-init
 data:
   resources-init.sql: |
     CREATE SEQUENCE IF NOT EXISTS public.resources_id_seq

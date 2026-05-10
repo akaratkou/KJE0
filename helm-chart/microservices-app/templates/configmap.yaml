@@ -3,6 +3,9 @@ kind: ConfigMap
 metadata:
   name: db-config
   namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "microservices-app.customLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database-config
 data:
   # Resources DB
   RESOURCES_DB_HOST: resources-db
