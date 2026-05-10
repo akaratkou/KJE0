@@ -1,0 +1,169 @@
+# resource-service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: resource-pod
+  template:
+    metadata:
+      labels:
+        app: resource-pod
+        version: "1"
+    spec:
+      containers:
+        - name: {{ .Values.resourceService.name }}
+          image: {{ .Values.resourceService.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.resourceService.port }}
+          env:
+            - name: RESOURCES_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: RESOURCES_DB_HOST
+            - name: RESOURCES_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: RESOURCES_DB_PORT
+            - name: RESOURCES_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: RESOURCES_DB_NAME
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: SONGS_MS_URL
+              value: {{ .Values.songsServiceUrl | quote }}
+            - name: SONGS_MS_PORT
+              value: {{ .Values.songsServicePort | quote }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.resourceService.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.resourceService.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.resourceService.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+# song-service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: song-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: song-pod
+  template:
+    metadata:
+      labels:
+        app: song-pod
+        version: "1"
+    spec:
+      containers:
+        - name: {{ .Values.songService.name }}
+          image: {{ .Values.songService.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.songService.port }}
+          env:
+            - name: SONGS_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_HOST
+            - name: SONGS_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_PORT
+            - name: SONGS_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_NAME
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.songService.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.songService.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.songService.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: song-storage
+              mountPath: /app/data
+      volumes:
+        - name: song-storage
+          persistentVolumeClaim:
+            claimName: song-pvc
+

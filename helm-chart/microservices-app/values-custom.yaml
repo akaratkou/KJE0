@@ -1,0 +1,16 @@
+# Custom values file with non-default settings
+# Use this file to override default values
+
+# Custom namespace
+namespace: k8s-custom
+
+# Custom replica count
+replicaCount: 3
+
+# Custom NodePorts (to avoid conflict with default release)
+resourceService:
+  nodePort: 30090
+
+songService:
+  nodePort: 30091
+

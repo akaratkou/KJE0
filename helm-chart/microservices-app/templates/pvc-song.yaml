@@ -1,0 +1,32 @@
+# for song service apps
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: song-pv-{{ .Release.Name }}
+  labels:
+    type: local
+    release: {{ .Release.Name }}
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/songs-{{ .Release.Name }}"
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: song-pvc
+  namespace: {{ .Release.Namespace }}
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  volumeName: song-pv-{{ .Release.Name }}
+  resources:
+    requests:
+      storage: 20Mi
+

@@ -1,0 +1,55 @@
+# Default values for microservices-app
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Namespace where the application will be deployed
+namespace: k8s-program
+
+# Replica count for deployments
+replicaCount: 2
+
+# Resource Service configuration
+resourceService:
+  name: resource-service
+  image: resource-service:1
+  port: 8080
+  nodePort: 30080
+
+# Song Service configuration
+songService:
+  name: song-service
+  image: song-service:1
+  port: 8080
+  nodePort: 30081
+
+# Database configuration
+database:
+  postgres:
+    image: postgres:15-alpine
+    user: postgres
+    password: postgres
+    
+  songsDb:
+    name: songsdb
+    storageSize: 300Mi
+    
+  resourcesDb:
+    name: resourcesdb
+    storageSize: 300Mi
+
+# Storage class name
+storageClassName: standard
+
+# Resource limits for databases
+dbResources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Service URLs
+songsServiceUrl: song-svc
+songsServicePort: "8080"
+

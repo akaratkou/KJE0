@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: songs-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: songs-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: songs-db
+  template:
+    metadata:
+      labels:
+        app: songs-db
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.database.postgres.image }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SONGS_DB_NAME
+          envFrom:
+            - secretRef:
+                name: postgres-secret
+          volumeMounts:
+            - name: songs-db-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: songs-init.sql
+          resources:
+            {{- toYaml .Values.dbResources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+      volumes:
+         - name: init-script
+           configMap:
+             name: db-init-scripts
+  volumeClaimTemplates:
+    - metadata:
+        name: songs-db-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.storageClassName }}
+        resources:
+          requests:
+            storage: {{ .Values.database.songsDb.storageSize }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: resources-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: resources-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resources-db
+  template:
+    metadata:
+      labels:
+        app: resources-db
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.database.postgres.image }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: RESOURCES_DB_NAME
+          envFrom:
+            - secretRef:
+                name: postgres-secret
+          volumeMounts:
+            - name: resources-db-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: resources-init.sql
+          resources:
+            {{- toYaml .Values.dbResources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+      volumes:
+        - name: init-script
+          configMap:
+            name: db-init-scripts
+  volumeClaimTemplates:
+    - metadata:
+        name: resources-db-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.storageClassName }}
+        resources:
+          requests:
+            storage: {{ .Values.database.resourcesDb.storageSize }}
+
