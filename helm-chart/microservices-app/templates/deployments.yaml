@@ -56,6 +56,10 @@ spec:
               value: {{ .Values.songsServiceUrl | quote }}
             - name: SONGS_MS_PORT
               value: {{ .Values.songsServicePort | quote }}
+            - name: ENABLE_EUREKA_CLIENT
+              value: {{ .Values.enableEureka | quote }}
+            - name: EUREKA_URI
+              value: {{ .Values.eurekaService.eurekaServiceName | quote }}
           startupProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -135,6 +139,10 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+            - name: ENABLE_EUREKA_CLIENT
+              value: {{ .Values.enableEureka | quote }}
+            - name: EUREKA_URI
+              value: {{ .Values.eurekaService.eurekaServiceName | quote }}
           startupProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -166,4 +174,54 @@ spec:
         - name: song-storage
           persistentVolumeClaim:
             claimName: song-pvc
+---
+# resource-service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: eureka-pod
+  template:
+    metadata:
+      labels:
+        app: eureka-pod
+        version: "1"
+    spec:
+      containers:
+        - name: {{ .Values.eurekaService.name }}
+          image: {{ .Values.eurekaService.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.eurekaService.port }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.eurekaService.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.eurekaService.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.eurekaService.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
 

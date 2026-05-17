@@ -8,6 +8,8 @@ namespace: k8s-program
 # Replica count for deployments
 replicaCount: 2
 
+enableEureka: true
+
 # Resource Service configuration
 resourceService:
   name: resource-service
@@ -21,6 +23,13 @@ songService:
   image: song-service:1
   port: 8080
   nodePort: 30081
+
+eurekaService:
+  name: eureka-service
+  image: eureka-service:1
+  port: 8761
+  nodePort: 30761
+  eurekaServiceName: eureka-svc
 
 # Database configuration
 database:

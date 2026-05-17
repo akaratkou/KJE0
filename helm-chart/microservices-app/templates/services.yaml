@@ -59,4 +59,19 @@ spec:
       port: 5432
       targetPort: 5432
       name: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.eurekaService.eurekaServiceName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: eureka-pod
+  ports:
+    - protocol: TCP
+      port: {{ .Values.eurekaService.port }}
+      targetPort: {{ .Values.eurekaService.port }}
+      nodePort: {{ .Values.eurekaService.nodePort }}
 
